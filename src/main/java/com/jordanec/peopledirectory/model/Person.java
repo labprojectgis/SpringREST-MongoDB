@@ -1,6 +1,7 @@
 package com.jordanec.peopledirectory.model;
 
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -12,7 +13,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.jordanec.peopledirectory.util.JsonDateDeserializer;
 import com.jordanec.peopledirectory.util.JsonDateSerializer;
 
-public class Person {
+public class Person implements Serializable{
+	/**
+	 * 
+	 */
+	@Transient
+	private static final long serialVersionUID = 6513485617455789714L;
 	@Id
 	private String id;
 	private long dni;
@@ -197,4 +203,9 @@ public class Person {
 	public void setCountry(String country) {
 		this.country = country;
 	} 	
+	
+	@Override
+	public String toString() {
+		return String.format("\"Person\": {\"id\":\"%s\",\"firstName\":\"%s\",\"lastName\":\"%s\"}", id, firstName, lastName);
+	}
 }

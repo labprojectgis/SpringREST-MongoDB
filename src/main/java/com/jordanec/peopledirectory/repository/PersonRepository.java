@@ -5,8 +5,12 @@ import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
+
 import com.jordanec.peopledirectory.model.Person;
 
+//@Repository
 public interface PersonRepository extends MongoRepository<Person, String>, PersonRepositoryCustom {
 	// http://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongodb.repositories.queries
 	
