@@ -2,65 +2,51 @@ package com.jordanec.peopledirectory.repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
+import org.bson.Document;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 
 import com.jordanec.peopledirectory.model.Person;
+import org.springframework.data.mongodb.repository.Query;
 
-//@Repository
-public interface PersonRepository extends MongoRepository<Person, String>, PersonRepositoryCustom {
+public interface PersonRepository extends MongoRepository<Person, String>, PersonRepositoryCustom
+{
 	// http://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongodb.repositories.queries
-	
-	
-	/*
-	 * http://localhost:8080/api/persons/search/findByfirstNameLike?q=a
-	 **/
-	public List<Person> findByFirstNameLike(@Param("q") String q);
-	
-	public List<Person> readAllByIdNotNullOrderByIdDesc();
-	
-	/*
-	 *	http://localhost:8080/api/persons/search/findByLastNameAndFirstNameAllIgnoreCase?l=jenkins&f=Katherine	= [1]
-	 *	http://localhost:8080/api/persons/search/findByLastNameAndFirstNameAllIgnoreCase?l=Bishop&f=Katherine	= []
-	 *	http://localhost:8080/api/persons/search/findByLastNameAndFirstNameAllIgnoreCase?l=Bishop&f				= []
-	 **/
-	public List<Person> findByLastNameAndFirstNameAllIgnoreCase(@Param("l") String lastname, @Param("f") String firstname);
-	
-	/*
-	 *	http://localhost:8080/api/persons/search/findByLastNameOrFirstNameAllIgnoreCase?l=Bishop&f=Katherine
-	 *	http://localhost:8080/api/persons/search/findByLastNameOrFirstNameAllIgnoreCase?l=jenkins&f=
-	 */
-	public List<Person> findByLastNameOrFirstNameAllIgnoreCase(@Param("l") String lastname, @Param("f") String firstname);
-
-	/*
-	 *	http://localhost:8080/api/persons/search/countAllByIdNotNull 
-	 **/
-	public Integer countAllByIdNotNull();
-	
-	/*
-	 *	http://localhost:8080/api/persons/search/findByDateOfBirthBetweenOrderById?start=1980/01/01&end=1980/12/31
-	 * */
-	public List<Person> findByDateOfBirthBetweenOrderById(@Param("start") Date start, @Param("end") Date end);
-	
-	
-	/*
-	 *	http://localhost:8080/api/persons/search/findByMobileBetween?start=85000000&end=85300000
-	 * */
+//	Person findAndModify(Query query, Update update, FindAndModifyOptions options, Person entityClass);
+	List<Person> findByFirstNameLike(String q);
+	Stream<Person> readAllByDateOfBirthNotNullOrderByDateOfBirthDesc();
+	List<Person> findByLastNameAndFirstNameAllIgnoreCase(String lastname, String firstname);
+	List<Person> findByLastNameOrFirstNameAllIgnoreCase(String lastName, String firstName);
+	List<Person> findByDateOfBirthBetweenOrderById(Date start, Date end);
 	//@Query("{'mobile' : {'$gt' : ?0, '$lt' : ?1}}")	Query equivalent
-	public List<Person> findByMobileBetween(@Param("start") long start, @Param("end") long end);
-	
-	
-	/*
-	 * http://localhost:8080/api/persons/search/findByGender?gender=Male
-	 * */
-	public List<Person> findByGender(@Param("gender") String gender);
-	
-	/*
-	 * 	http://localhost:8080/api/persons/search/findDistinctPeopleByCountryIgnoreCase?country=portugal
-	 * */
-	public List<Person> findDistinctPeopleByCountryIgnoreCase(@Param("country") String country); 
-	
+	List<Person> findByMobileBetween(long start, long end);
+	List<Person> findByGender(String gender);
+	List<Person> findDistinctPeopleByCountryIgnoreCase(String country);
+	Optional<Person> findByDni(Long dni);
+	//
+	@Aggregation(pipeline = {
+			"{$lookup: {from: 'countries', localField: 'country._id', foreignField: '_id', as: 'country'}}",
+			"{$unwind: {path: '$country' }}"})
+	List<Person> lookupCountry();
+
+/*	@TODO: define some aggregations
+@Aggregation(" { $subtract: [ { $subtract:[{$year:'$$NOW'},{$year:'$dateOfBirth'}]},   {$cond:[ {$gt:[0, {$subtract:[{$dayOfYear:'$$NOW'}, "
+			+ "   {$dayOfYear:'$dateOfBirth'}]}]}, 1, 0 ]}] } ")
+	@Aggregation("{   "
+			+ "		$project:  { "
+			+ "			person.dni: 1.0, "
+			+ "			person.firstName: 1.0, "
+			+ "			person.lastName: 1.0 "
+			+ "			dateDiff: { "
+			+ "				$subtract: [new Date(), '$dateOfBirth'] "
+			+ "			}  "
+
+			+ "		}  "
+			+ "}")
+	List age();*/
 }

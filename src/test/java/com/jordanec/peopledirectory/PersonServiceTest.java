@@ -6,8 +6,10 @@ import static org.hamcrest.Matchers.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,35 +37,36 @@ public class PersonServiceTest {
 	public void testGetPerson() {
 		String id = "10";
 		logger.info("testGetPerson("+id+"): ");
-		Person person = personService.getPerson(id);
-		assertNotNull(person);
-		logger.info(person.toString());
+		Optional<Person> optionalPerson = personService.getById(id);
+		assertTrue(optionalPerson.isPresent());
+		logger.info(optionalPerson.get().toString());
 	}
 	@Test
-	public void  testPersonExistsPerson(){
+	public void  testPersonExistsPerson()
+	{
 		String id = "15";
-		Person person = personService.getPerson(id);
-		assertNotNull(person);
-		logger.info("testPersonExists(person: "+person.getFirstName() +")");
-		assertTrue(personService.personExists(person));
+		Optional<Person> optionalPerson = personService.getById(id);
+		assertTrue(optionalPerson.isPresent());
+		logger.info("testPersonExists(person: "+optionalPerson.get().getFirstName() +")");
+		assertTrue(personService.exists(optionalPerson.get()));
 	}
 	@Test
 	public void  testPersonExistsInt(){
 		String id = "25";
 		logger.info("testPersonExists("+id+")");
-		assertTrue(personService.personExists(id));
+		assertTrue(personService.existsById(id));
 	}
 	@Test
 	public void  testCountPersons(){
 		logger.info("testCountPersons()");
-		int count = personService.countPersons();
+		long count = personService.count();
 		assertThat(count, not(0));
 		logger.info("count: "+count);
 	}
 	@Test
 	public void  testGetPersons(){
 		logger.info("testGetPersons()");
-		int size = personService.getPersons().size();
+		int size = personService.findAll().size();
 		assertNotEquals(0, size);
 		logger.info("size: "+size);
 	}
@@ -72,25 +75,24 @@ public class PersonServiceTest {
 		try {
 			String s = "01/01/1980";
 			String e = "31/12/1980";
-			Date start = dateFormat.parse(s);
-			Date end = dateFormat.parse(e);
+
+			LocalDate start = LocalDate.parse("01/01/1980");
+			LocalDate end = LocalDate.parse("31/12/1980");
 			logger.info("testFindBornBetween(\""+s+"\", \""+e+"\")");
 			List<Person> persons = personService.findBornBetween(start, end);
 			assertNotNull(persons);
 			
 			for (Person person : persons) {
 				logger.info("person: id: "+person.getId()+", DateOfBirth: "+dateFormat.format(person.getDateOfBirth()));
-				assertThat(person.getDateOfBirth().compareTo(start), greaterThanOrEqualTo(0));
+
+			assertThat(person.getDateOfBirth().compareTo(start), greaterThanOrEqualTo(0));
 				assertThat(person.getDateOfBirth().compareTo(end), lessThanOrEqualTo(0));
 			}
 
 
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
-		
 	}
 	// TODO
 	@Test
