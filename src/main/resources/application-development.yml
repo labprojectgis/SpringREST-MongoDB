@@ -1,0 +1,27 @@
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      database: people1
+      username: root
+      password: root
+      auto-index-creation: false
+  server:
+    #  servlet-path:
+    servlet:
+      context-path: /people
+logging:
+  level:
+    com.jordanec.peopledirectory: DEBUG
+  path: logs/
+  file: application.log
+# Custom properties
+people-directory:
+  mongodb:
+    drop-before: true
+    insert-initial-data:
+      person: true
+      country: true
+    update-initial-data:
+      person: false
+      country: false

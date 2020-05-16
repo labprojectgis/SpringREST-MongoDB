@@ -1,3 +1,5 @@
-# SpringREST-MongoDB
+# People directory MongoDB (dummy Data)
 
-REST API using Spring REST, HATEOAS, MongoDB
+Implementation of Spring data MongoDB with multiple examples of repository operations, aggregations (group, project, match, lookup, unwind).
+
+https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#reference

@@ -28,6 +28,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Optional;
+
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 
@@ -56,7 +58,7 @@ public class PersonIntegrationTest {
     private void testPersonCreate() {
     	try {
     		logger.info("testPersonCreate()");
-    		File persons_json = new ClassPathResource("data.json").getFile();
+    		File persons_json = new ClassPathResource("data/data.json").getFile();
 	    	//List<Person> persons = objectMapper.readValue(persons_json, objectMapper.getTypeFactory().constructCollectionType(List.class, Person.class));
 	    	BufferedInputStream bin = new BufferedInputStream(new FileInputStream(persons_json));
 	    	byte[] buffer = new byte[(int) persons_json.length()];
@@ -83,16 +85,16 @@ public class PersonIntegrationTest {
     	try {
     		String id = "1";
     		logger.info("testPersonUpdate()");
-	    	Person person = personService.getPerson(id);
-    		assertNotNull(person);
-    		person.setFirstName("Jordan");
-    		person.setLastName("Espinoza");
-	    	logger.info("PUT: "+person.toString());
+			Optional<Person> optionalPerson = personService.getById(id);
+    		assertTrue(optionalPerson.isPresent());
+			optionalPerson.get().setFirstName("Jordan");
+			optionalPerson.get().setLastName("Espinoza");
+	    	logger.info("PUT: "+optionalPerson.get().toString());
 			logger.info("Path: /api/persons/");
 			result = mockMvc.perform(put("/api/persons/"+id)
 					//.accept(MediaType.APPLICATION_JSON)
 					.contentType(MediaType.APPLICATION_JSON)
-					.content(objectMapper.writeValueAsBytes(person))
+					.content(objectMapper.writeValueAsBytes(optionalPerson.get()))
 			    	).andReturn();
 				
 			logger.info("Status:"+result.getResponse().getStatus());

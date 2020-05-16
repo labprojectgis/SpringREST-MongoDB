@@ -1,17 +1,14 @@
 package com.jordanec.peopledirectory.controller;
 
-import java.net.URI;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
+import java.util.Optional;
+
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
-import org.springframework.http.HttpHeaders;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,17 +18,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jordanec.peopledirectory.model.Person;
-import com.jordanec.peopledirectory.repository.PersonRepository;
 import com.jordanec.peopledirectory.service.PersonService;
-import com.jordanec.peopledirectory.service.PersonServiceImpl;
 
-@RepositoryRestController
+@RestController
+@RequestMapping("/api")
 public class PersonController {
 	
 	@Autowired
@@ -40,109 +34,204 @@ public class PersonController {
 	private final Logger logger = LoggerFactory.getLogger(PersonController.class);
     
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	
-    
-    @RequestMapping(method = RequestMethod.GET, value = "persons/{id}") 
-    public @ResponseBody ResponseEntity<?> getPerson(@PathVariable String id) {
-        Person person = personService.getPerson(id);
-        if (person == null) {
-        	logger.error("Person with id="+id+" not found");
-        	return new ResponseEntity<Resources<Person>>(HttpStatus.NOT_FOUND);
-        }
-        logger.info("Person with id="+id+" found");
-        Resource<Person> resource = new Resource<Person>(person);
-        resource.add(linkTo(methodOn(PersonController.class).getPerson(id)).withSelfRel());
-        resource.add(linkTo(methodOn(PersonController.class).getPerson(id)).withRel("person"));
-        return ResponseEntity.ok(resource);
-    }
-    
-    
-    /*@RequestMapping(method = RequestMethod.GET, value = "persons") 
-    public @ResponseBody ResponseEntity<?> getPersons() {
-        List<Person> persons = personService.getPersons();
-        Resources<Person> resources = new Resources<Person>(persons);
-        
-        for (Person p : persons) {
-    		resources.add(linkTo(methodOn(PersonServiceImpl.class).getPerson(p.getId())).withSelfRel());
-		}
-        resources.add(linkTo(methodOn(PersonServiceImpl.class).getPersons()).withSelfRel());
-        logger.info("getPersons() called");
-        return ResponseEntity.ok(resources); 
-    }*/
-    
+
     /**
-     * 
-     * @return Total of Person registers
+     * WRITE APIs
      */
-    @RequestMapping(method = RequestMethod.GET, value="persons/count")
-    public @ResponseBody ResponseEntity<?> countPersons(){
-    	return ResponseEntity.ok(personService.countPersons());
+
+    @RequestMapping(value = "/person/bulkCreate",method = RequestMethod.POST)
+    public ResponseEntity<List<Person>> bulkCreate(@RequestBody List<Person> persons) {
+        return new ResponseEntity<>(personService.create(persons), HttpStatus.OK);
     }
-    
-    
+
+    @RequestMapping(value = "/person/bulkSave",method = RequestMethod.POST)
+    public ResponseEntity<List<Person>> bulkSave(@RequestBody List<Person> persons) {
+        return new ResponseEntity<>(personService.save(persons), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/person",method = RequestMethod.POST)
+    public ResponseEntity<Person> bulkCreate(@RequestBody Person person) {
+        return new ResponseEntity<>(personService.create(person), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/person/save",method = RequestMethod.POST)
+    public ResponseEntity<Person> bulkSave(@RequestBody Person person) {
+        return new ResponseEntity<>(personService.save(person), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/person/delete/{id}",method = RequestMethod.DELETE)
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        personService.delete(id);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * READ APIs
+     */
+
+    @RequestMapping(method = RequestMethod.GET, value = "/person/{id}")
+    public @ResponseBody ResponseEntity<Person> getPerson(@PathVariable String id) {
+        Optional<Person> optionalPerson = personService.getById(id);
+        return optionalPerson.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value="/person/count")
+    public @ResponseBody ResponseEntity<?> count()
+    {
+        return ResponseEntity.ok(personService.count());
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/person")
+    public @ResponseBody ResponseEntity<List<Person>> findAll() {
+        List<Person> persons = personService.findAll();
+        return ResponseEntity.ok(persons);
+    }
+    @RequestMapping(method = RequestMethod.GET, value = "/person/findByDni/{dni}")
+    public @ResponseBody ResponseEntity<Optional<Person>> findByDni(@PathVariable Long dni)
+    {
+        Optional<Person> personOptional = personService.findByDni(dni);
+        return ResponseEntity.ok(personOptional);
+    }
+
+    /**
+     * FIND APIs
+     */
+
     /*
-     * 	http://localhost:8080/api/persons/findBornBetween?start=01/01/1980&end=12/31/1980
+     * 	/api/person/findBornBetween?start=01/01/1980&end=01/02/1980
      * */
-    @RequestMapping(method = RequestMethod.GET, params= {"start","end"}, value="persons/findBornBetween")
-    public @ResponseBody ResponseEntity<?> findBornBetween(@RequestParam("start") String start, @RequestParam("end") String end){
-    	logger.info("findBornBetween() request! Params: start= "+start+" end="+end);
-    	try {
-    		Date s = dateFormat.parse(start);
-    		Date e = dateFormat.parse(end);
-	    	logger.info("Params formated: start= "+s+" end="+e);
-	    	List<?> persons = personService.findBornBetween(s, e);
-	    	return ResponseEntity.ok(persons);
-    	} catch (ParseException e1) {
-    		logger.error(e1.getMessage());
-			return new ResponseEntity<Resources<Person>>(HttpStatus.BAD_REQUEST);
-		}
+    @RequestMapping(method = RequestMethod.GET, value="/person/findBornBetween")
+    public @ResponseBody ResponseEntity<List<Person>> findBornBetween(@RequestParam("start")
+    @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate start,
+            @RequestParam("end") @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate end)
+    {
+        try
+        {
+    	    logger.debug("findBornBetween(start, end): start={} end={}", start, end);
+            List<Person> persons = personService.findBornBetween(start, end);
+            return ResponseEntity.ok(persons);
+        }
+        catch (Exception ex)
+        {
+            logger.error("findBornBetween()", ex);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
-    
-    
+
     /*
-     * to POST a list of persons
-     * */
-    @RequestMapping(value = "persons",method = RequestMethod.POST) 
-    public ResponseEntity<?> createPersons(@RequestBody List<Person> persons){
-    	Resources<Person> resources = new Resources<Person>(persons);
-    	HttpStatus status = null;
-    	resources.add(linkTo(methodOn(PersonController.class).createPersons(null)).withSelfRel());
-    	
-    	for (Person person : persons) {
-			if (!personService.personExists(person)){
-				Person person_saved = personService.createPerson(person);
-				if (person_saved != null) {
-					resources.add(linkTo(methodOn(PersonController.class).getPerson(person_saved.getId())).withSelfRel());
-					resources.add(linkTo(methodOn(PersonController.class).getPerson(person_saved.getId())).withRel("person"));
-				}
-				else {
-					logger.error("Error saving Person: "+person.getFirstName());
-					status = HttpStatus.PARTIAL_CONTENT;
-				}
-			}
-			else {
-				status = HttpStatus.PARTIAL_CONTENT;
-				resources.add(linkTo(methodOn(PersonController.class).getPerson(person.getId())).withSelfRel());
-				logger.error("This person already exists: "+person.getFirstName());
-			}
-		}
-    	
-    	URI location = ServletUriComponentsBuilder.fromCurrentServletMapping().path("/persons").build().toUri();
-    	HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(location);
-        if (persons.isEmpty())
-        	return new ResponseEntity<Resources<Person>>(resources, headers, HttpStatus.NO_CONTENT);
-        if (status == null)
-        	return new ResponseEntity<Resources<Person>>(resources, headers, HttpStatus.CREATED);
-        else 
-        	return new ResponseEntity<Resources<Person>>(resources, headers, status);
+        /api/person/findByFirstNameLike?firstName=aso
+     */
+    @RequestMapping(value="/person/findByDateOfBirthBetweenOrderById",params= "firstName",method=RequestMethod.GET)
+    public ResponseEntity<List<Person>> findByDateOfBirthBetweenOrderById(@RequestParam("start") String start,
+            @RequestParam("end") String end){
+        try
+        {
+            logger.debug("findByDateOfBirthBetweenOrderById(start, end): start={} end={}", start, end);
+            Date startParsed = dateFormat.parse(start);
+            Date endParsed = dateFormat.parse(end);
+            List<Person> persons = personService.findByDateOfBirthBetweenOrderById(startParsed, endParsed);
+            return new ResponseEntity<>(persons, HttpStatus.OK);
+        }
+        catch (Exception ex)
+        {
+            logger.error("findByDateOfBirthBetweenOrderById()", ex);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
-    
-    @RequestMapping(value="persons/findByFirstNameLike",params= "q",method=RequestMethod.GET)
-    public ResponseEntity<?> findByFirstNameLike(@RequestParam("q") String q){
-    	List<Person> persons = personService.findByFirstNameLike(q);
-		Resources<Person> resources = new Resources<Person>(persons);
-		return new ResponseEntity<Resources<Person>>(resources, HttpStatus.OK);
+    /*
+        /api/person/findDistinctPeopleByCountry?country=Costa%20Rica
+
+     */
+    @RequestMapping(value = "/person/findDistinctPeopleByCountry", method = RequestMethod.GET)
+    public ResponseEntity<List<Person>> findDistinctPeopleByCountry(@RequestParam("country") String country)
+    {
+        List<Person> persons = personService.findDistinctPeopleByCountryIgnoreCase(country);
+        return new ResponseEntity<>(persons, HttpStatus.OK);
     }
-    
+
+    ///api/person/findByFirstNameLike?firstName=the
+    @RequestMapping(value="/person/findByFirstNameLike", method=RequestMethod.GET)
+    public ResponseEntity<List<Person>> findByFirstNameLike(@RequestParam("firstName") String firstName){
+        List<Person> persons = personService.findByFirstNameLike(firstName);
+        return new ResponseEntity<>(persons, HttpStatus.OK);
+    }
+
+    ///api/person/findByGender?gender=Female
+    @RequestMapping(value="/person/findByGender", method=RequestMethod.GET)
+    public ResponseEntity<List<Person>> findByGender(@RequestParam("gender") String gender){
+        List<Person> persons = personService.findByGender(gender);
+        return new ResponseEntity<>(persons, HttpStatus.OK);
+    }
+
+    ///api/person/findByLastNameAndFirstName?lastName=Jenkins&firstName=Katherine
+    @RequestMapping(value="/person/findByLastNameAndFirstName", method=RequestMethod.GET)
+    public ResponseEntity<List<Person>> findByLastNameAndFirstName(@RequestParam("lastName") String lastName,
+            @RequestParam("firstName") String firstName)
+    {
+        List<Person> persons = personService.findByLastNameAndFirstNameAllIgnoreCase(lastName, firstName);
+        return new ResponseEntity<>(persons, HttpStatus.OK);
+    }
+
+    ///api/person/findByLastNameOrFirstName?lastName=Jenkins&firstName=Katherine
+    @RequestMapping(value="/person/findByLastNameOrFirstName", method=RequestMethod.GET)
+    public ResponseEntity<List<Person>> findByLastNameOrFirstName(@RequestParam("lastName") String lastName,
+            @RequestParam("firstName") String firstName) {
+        List<Person> persons = personService.findByLastNameOrFirstNameAllIgnoreCase(lastName, firstName);
+        return new ResponseEntity<>(persons, HttpStatus.OK);
+    }
+
+    ///api/person/findByMobileBetween?start=96414376&end=96436478
+    @RequestMapping(value="/person/findByMobileBetween", method=RequestMethod.GET)
+    public ResponseEntity<List<Person>> findByMobileBetween(@RequestParam("start") long start,
+            @RequestParam("end") long end) {
+        List<Person> persons = personService.findByMobileBetween(start, end);
+        return new ResponseEntity<>(persons, HttpStatus.OK);
+    }
+
+    // api/person/getCountByCountry?country=China
+    @RequestMapping(value="/person/getCountByCountry", method=RequestMethod.GET)
+    public ResponseEntity<Long> getCountByCountry(@RequestParam("country") String country) {
+        return ResponseEntity.ok().body(personService.getCountByCountry(country));
+    }
+    // api/person/groupByCountry
+    @RequestMapping(value = "/person/groupByCountry", method = RequestMethod.GET)
+    public ResponseEntity<List<Person>> groupByCountry(@RequestParam(value = "field", required = false)
+            String field, @RequestParam(value = "order", required = false) String order)
+    {
+        return ResponseEntity.ok(personService.groupByCountry(field, order));
+    }
+    // api/person/groupDocumentByCountryOrdered?field=total&order=DESC
+    @RequestMapping(value = "/person/groupDocumentByCountryOrdered", method = RequestMethod.GET)
+    public ResponseEntity<Document> groupDocumentByCountryOrdered(@RequestParam(value = "field", required = false)
+            String field, @RequestParam(value = "order", required = false) String order)
+    {
+        return ResponseEntity.ok(personService.groupDocumentByCountryOrdered(field, order));
+    }
+
+    @RequestMapping(value = "/person/readAllAges", method = RequestMethod.GET)
+    public ResponseEntity<List<Person>> readAllAges()
+    {
+        return ResponseEntity.ok(personService.readAllByDateOfBirthNotNullOrderByDateOfBirthDesc());
+    }
+    // api/person/lookupCountry?dni=290978673
+    // api/person/lookupCountry
+    @RequestMapping(value = "/person/lookupCountry", method = RequestMethod.GET)
+    public ResponseEntity<List<Person>> lookupCountry(@RequestParam(value = "dni", required = false) Long dni)
+    {
+        return ResponseEntity.ok(personService.lookupCountry(dni));
+    }
+
+    // api/person/isOlderThan/dni/290978673/age/40
+    @RequestMapping(value = "/person/isOlderThan/dni/{dni}/age/{age}", method = RequestMethod.GET)
+    public ResponseEntity<Person> isOlderThan(@PathVariable(value = "dni") Long dni, @PathVariable(value = "age") Integer age)
+    {
+        return ResponseEntity.ok(personService.isOlderThan(dni, age));
+    }
+
+    //Test
+    @RequestMapping(value = "/person/test", method = RequestMethod.GET)
+    public ResponseEntity<Document> test()
+    {
+        return ResponseEntity.ok(personService.test());
+    }
 }

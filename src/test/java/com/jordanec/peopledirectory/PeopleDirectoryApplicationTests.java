@@ -25,9 +25,9 @@ public class PeopleDirectoryApplicationTests {
 	@Test
 	public void populateDB() {
 		try {
-			File persons_json = new ClassPathResource("data.json").getFile();
+			File persons_json = new ClassPathResource("data/data.json").getFile();
 	    	List<Person> persons = objectMapper.readValue(persons_json, objectMapper.getTypeFactory().constructCollectionType(List.class, Person.class));
-	    	assertNotNull(personRepository.save(persons));
+	    	assertNotNull(personRepository.saveAll(persons));
 	    	
 		} catch (Exception e) {
 			e.printStackTrace();

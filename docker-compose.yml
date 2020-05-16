@@ -1,0 +1,23 @@
+version: '3.1'
+
+services:
+  mongo:
+    container_name: mongo-container
+    image: mongo
+    #restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - sample-mongo-volume:/data/db
+    networks:
+      - sample-mongo-network
+
+networks:
+  sample-mongo-network:
+    driver: bridge
+
+volumes:
+  sample-mongo-volume:
