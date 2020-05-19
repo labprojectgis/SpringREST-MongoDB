@@ -44,6 +44,10 @@ public class MongoDBDataInitializerConfig
     private boolean UPDATE_INITIAL_DATA_COUNTRY;
     @Value("${people-directory.mongodb.drop-before:false}")
     private boolean DROP_BEFORE;
+    @Value("${people-directory.mongodb.custom-schema-validation.person:false}")
+    private boolean CUSTOM_SCHEMA_VALIDATION_PERSON;
+    @Value("${people-directory.mongodb.custom-schema-validation.country:false}")
+    private boolean CUSTOM_SCHEMA_VALIDATION_COUNTRY;
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -80,14 +84,14 @@ public class MongoDBDataInitializerConfig
         }
     }
 
-    private void dropDB()
+    protected void dropDB()
     {
         MongoDatabase mongoDatabase = mongoTemplate.getDb();
         logger.debug("dropDB(): Database name: {}", mongoDatabase.getName());
         mongoDatabase.drop();
     }
 
-    private void seedPersonData() throws IOException
+    protected void seedPersonData() throws IOException
     {
         Resource sourceData = new ClassPathResource("data/Person.json");
         List<Person> persons = objectMapper.readValue(sourceData.getFile(),
@@ -99,7 +103,7 @@ public class MongoDBDataInitializerConfig
             logger.debug("seedPersonData(): Inserting initial data...");
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
-            personService.create(persons);
+            personService.insert(persons);
             stopWatch.stop();
             logger.debug("seedPersonData(): {} person documents inserted in {} ms", persons.size(),
                     stopWatch.getTotalTimeMillis());
@@ -114,7 +118,7 @@ public class MongoDBDataInitializerConfig
         }
     }
 
-    private void seedCountryData() throws IOException
+    protected void seedCountryData() throws IOException
     {
         Resource sourceData = new ClassPathResource("data/Country.json");
         List<Country> countries = objectMapper.readValue(sourceData.getFile(),
@@ -141,38 +145,54 @@ public class MongoDBDataInitializerConfig
         }
     }
 
-    private void createCountrySchema()
+    protected void createCountrySchema()
     {
         if (!mongoTemplate.collectionExists(Country.class))
         {
-            //MongoCollection<Document> countriesCollection =
-            mongoTemplate.createCollection(Country.class, CollectionOptions.empty());
+            if (CUSTOM_SCHEMA_VALIDATION_COUNTRY)
+            {
+                //MongoCollection<Document> countriesCollection =
+                mongoTemplate.createCollection(Country.class, CollectionOptions.empty());
+                //TODO: implement validations
+            }
+            else
+            {
+                //MongoCollection<Document> countriesCollection =
+                mongoTemplate.createCollection(Country.class, CollectionOptions.empty());
+            }
+
             checkIndexForCollection(Country.class);
         }
     }
 
-    private void createPersonSchema()
+    protected void createPersonSchema()
     {
         if (!mongoTemplate.collectionExists(Person.class))
         {
-            MongoJsonSchema personSchema = MongoJsonSchema.builder().properties(JsonSchemaProperty.int64("dni").gte(0),
-                    JsonSchemaProperty.string("firstName").minLength(1).maxLength(40),
-                    JsonSchemaProperty.string("lastName").maxLength(80),
-                    JsonSchemaProperty.string("email").maxLength(50),
-                    JsonSchemaProperty.string("gender").possibleValues("Female", "Male"),
-                    JsonSchemaProperty.string("ipAddress").matching("([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])"),
-                    JsonSchemaProperty.int64("mobile").gte(0), JsonSchemaProperty.date("dateOfBirth"),
-                    JsonSchemaProperty.string("color"), JsonSchemaProperty.string("frequency"),
-                    JsonSchemaProperty.string("mac"), JsonSchemaProperty.string("language"),
-                    JsonSchemaProperty.string("shirtSize"), JsonSchemaProperty.string("university"),
-                    JsonSchemaProperty.object("country")).required("dni", "firstName", "email").build();
-//            MongoCollection<Document> personsCollection =
-            mongoTemplate.createCollection(Person.class, CollectionOptions.empty().schema(personSchema));
+            if (CUSTOM_SCHEMA_VALIDATION_PERSON)
+            {
+                MongoJsonSchema personSchema = MongoJsonSchema.builder().properties(JsonSchemaProperty.int64("dni").gte(0),
+                        JsonSchemaProperty.string("firstName").minLength(1).maxLength(40),
+                        JsonSchemaProperty.string("lastName").maxLength(80),
+                        JsonSchemaProperty.string("email").maxLength(50),
+                        JsonSchemaProperty.string("gender").possibleValues("Female", "Male"),
+                        JsonSchemaProperty.string("ipAddress").matching("([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])"),
+                        JsonSchemaProperty.int64("mobile").gte(0), JsonSchemaProperty.date("dateOfBirth"),
+                        JsonSchemaProperty.string("color"), JsonSchemaProperty.string("frequency"), JsonSchemaProperty.string("mac"), JsonSchemaProperty.string("language"),
+                        JsonSchemaProperty.string("shirtSize"), JsonSchemaProperty.string("university"),
+                        JsonSchemaProperty.object("country")).required("dni", "firstName", "email").build();
+                //            MongoCollection<Document> personsCollection =
+                mongoTemplate.createCollection(Person.class, CollectionOptions.empty().schema(personSchema));
+            }
+            else
+            {
+                mongoTemplate.createCollection(Person.class, CollectionOptions.empty());
+            }
             checkIndexForCollection(Person.class);
         }
     }
 
-    private <T> void checkIndexForCollection(Class<T> tClass)
+    protected <T> void checkIndexForCollection(Class<T> tClass)
     {
         logger.info("checkIndexForCollection(): class: {}",tClass.getSimpleName());
         IndexOperations indexOps = mongoTemplate.indexOps(tClass);

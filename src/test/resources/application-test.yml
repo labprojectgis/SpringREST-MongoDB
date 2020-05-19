@@ -1,22 +1,19 @@
 spring:
   data:
     mongodb:
-      authentication-database: admin
-      database: people1
-      username: root
-      password: root
+      database: test
       auto-index-creation: false
 logging:
   level:
     com.jordanec.peopledirectory: DEBUG
   path: logs/
-  file: application.log
+  file: application-test.log
 # Custom properties
 people-directory:
   mongodb:
     custom-schema-validation:
-      person: true
-      country: true
+      person: false
+      country: false
     drop-before: true
     insert-initial-data:
       person: true

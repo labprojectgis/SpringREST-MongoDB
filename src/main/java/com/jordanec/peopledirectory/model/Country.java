@@ -23,6 +23,7 @@ public class Country
     private String code;
     private String capital;
     private String region;
+    private String demonym;
     private CurrencyDTO currency;
     private LanguageDTO language;
     private String flag;

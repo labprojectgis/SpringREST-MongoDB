@@ -1,0 +1,42 @@
+[
+  {
+    "dni": 230942369,
+    "firstName": "Carlos",
+    "lastName": "Gonzalez",
+    "email": "carlos.gonzalez@amazonaws.com",
+    "gender": "Male",
+    "ipAddress": "175.33.65.150",
+    "mobile": 80928128,
+    "dateOfBirth": "19/03/1994",
+    "color": "Orange",
+    "frequency": "Often",
+    "mac": "75-1B-8A-6A-6B-56",
+    "company": "Brightbean",
+    "language": "Dhivehi",
+    "shirtSize": "3XL",
+    "university": "Universidad Libre de Costa Rica",
+    "country": {
+      "name": "Costa Rica"
+    }
+  },
+  {
+    "dni": 952971369,
+    "firstName": "Ana",
+    "lastName": "Barrios",
+    "email": "anabarrios@amazonaws.com",
+    "gender": "Female",
+    "ipAddress": "173.38.42.103",
+    "mobile": 80928128,
+    "dateOfBirth": "19/03/1979",
+    "color": "Gray",
+    "frequency": "Often",
+    "mac": "34-BA-4A-6A-8B-36",
+    "company": "Brightbean",
+    "language": "Dhivehi",
+    "shirtSize": "3XL",
+    "university": "Universidad Libre de Costa Rica",
+    "country": {
+      "name": "Costa Rica"
+    }
+  }
+]

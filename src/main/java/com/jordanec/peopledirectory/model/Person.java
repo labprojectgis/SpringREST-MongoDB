@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.jordanec.peopledirectory.dto.CountryDTO;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -23,7 +24,7 @@ public class Person
 {
 	@Transient
 	private static final long serialVersionUID = 6513485617455789714L;
-	@MongoId
+	@Id
 	private String id;
 	@Indexed(unique=true)
 	private long dni;

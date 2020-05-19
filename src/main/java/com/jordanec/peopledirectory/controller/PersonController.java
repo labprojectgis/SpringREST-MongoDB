@@ -39,9 +39,9 @@ public class PersonController {
      * WRITE APIs
      */
 
-    @RequestMapping(value = "/person/bulkCreate",method = RequestMethod.POST)
+    @RequestMapping(value = "/person/bulkInsert",method = RequestMethod.POST)
     public ResponseEntity<List<Person>> bulkCreate(@RequestBody List<Person> persons) {
-        return new ResponseEntity<>(personService.create(persons), HttpStatus.OK);
+        return new ResponseEntity<>(personService.insert(persons), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/person/bulkSave",method = RequestMethod.POST)
@@ -51,7 +51,7 @@ public class PersonController {
 
     @RequestMapping(value = "/person",method = RequestMethod.POST)
     public ResponseEntity<Person> bulkCreate(@RequestBody Person person) {
-        return new ResponseEntity<>(personService.create(person), HttpStatus.OK);
+        return new ResponseEntity<>(personService.insert(person), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/person/save",method = RequestMethod.POST)
@@ -63,6 +63,10 @@ public class PersonController {
     public ResponseEntity<Void> delete(@PathVariable String id) {
         personService.delete(id);
         return ResponseEntity.ok().build();
+    }
+    @RequestMapping(value = "/person/bulkDelete",method = RequestMethod.DELETE)
+    public ResponseEntity<List<Person>> bulkDelete(@RequestBody List<Person> persons) {
+        return new ResponseEntity<>(personService.delete(persons), HttpStatus.OK);
     }
 
     /**
@@ -87,10 +91,11 @@ public class PersonController {
         return ResponseEntity.ok(persons);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/person/findByDni/{dni}")
-    public @ResponseBody ResponseEntity<Optional<Person>> findByDni(@PathVariable Long dni)
+    public @ResponseBody ResponseEntity<Person> findByDni(@PathVariable Long dni)
     {
-        Optional<Person> personOptional = personService.findByDni(dni);
-        return ResponseEntity.ok(personOptional);
+        Optional<Person> optionalPerson = personService.findByDni(dni);
+//        return ResponseEntity.ok(personOptional);
+        return optionalPerson.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**

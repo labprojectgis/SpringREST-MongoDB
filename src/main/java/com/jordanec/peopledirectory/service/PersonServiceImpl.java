@@ -60,7 +60,7 @@ public class PersonServiceImpl implements PersonService {
 	}
 
 	@Override
-	public List<Person> create(List<Person> persons) {
+	public List<Person> insert(List<Person> persons) {
 		persons.forEach(this::assignCountryId);
 		return personRepository.insert(persons);
 	}
@@ -71,7 +71,7 @@ public class PersonServiceImpl implements PersonService {
 	}
 
 	@Override
-	public Person create(Person person) {
+	public Person insert(Person person) {
 		assignCountryId(person);
 		return personRepository.insert(person);
 	}
@@ -89,6 +89,11 @@ public class PersonServiceImpl implements PersonService {
 	public void delete(String id)
 	{
 		personRepository.deleteById(id);
+	}
+	@Override
+	public List<Person> delete(List<Person> persons)
+	{
+		return personRepository.delete(persons);
 	}
 
 	@Override

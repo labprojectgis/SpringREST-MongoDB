@@ -25,3 +25,4 @@ dist/
 nbdist/
 .nb-gradle/
 /application.log
+/application-test.log

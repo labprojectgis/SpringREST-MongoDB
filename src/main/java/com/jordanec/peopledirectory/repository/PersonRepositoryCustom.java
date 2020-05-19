@@ -16,5 +16,6 @@ public interface PersonRepositoryCustom
 	Person update(Person update);
 	List<Person> lookupCountry(long dni);
 	Person isOlderThan(long dni, int age);
+	List<Person> delete(List<Person> persons);
 	Document test();
 }

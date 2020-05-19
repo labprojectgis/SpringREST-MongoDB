@@ -13,11 +13,12 @@ public interface PersonService {
 	boolean exists(Person person);
 	boolean existsById(String id);
 	long count();
-	List<Person> create(List<Person> persons);
+	List<Person> insert(List<Person> persons);
 	List<Person> save(List<Person> persons);
-	Person create(Person person);
+	Person insert(Person person);
 	Person save(Person person);
 	void delete(String id);
+	List<Person> delete(List<Person> persons);
 	List<Person> findAll();
 	Optional<Person> findByDni(Long dni);
 	List<Person> findBornBetween(LocalDate start, LocalDate end);
@@ -26,7 +27,7 @@ public interface PersonService {
 	List<Person> findByGender(String gender);
 	List<Person> findByLastNameAndFirstNameAllIgnoreCase(String lastName, String firstName);
 	List<Person> findByLastNameOrFirstNameAllIgnoreCase(String lastName, String firstName);
-	//@Query("{'mobile' : {'$gt' : ?0, '$lt' : ?1}}")	Query equivalent
+	//@Query("{'mobile' : {'$gte' : ?0, '$lte' : ?1}}")	Query equivalent
 	List<Person> findByMobileBetween(long start, long end);
 	List<Person> findDistinctPeopleByCountryIgnoreCase(String country);
 	long getCountByCountry(String country);

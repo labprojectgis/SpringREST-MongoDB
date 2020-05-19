@@ -3,7 +3,9 @@ package com.jordanec.peopledirectory.repository;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.mongodb.client.result.DeleteResult;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.domain.Sort;
@@ -26,6 +28,8 @@ import com.jordanec.peopledirectory.model.Person;
 
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 public class PersonRepositoryImpl implements PersonRepositoryCustom {
@@ -34,7 +38,7 @@ public class PersonRepositoryImpl implements PersonRepositoryCustom {
 
 	@Override
 	public List<Person> findBornBetween(LocalDate start, LocalDate end) {
-		Query query = new Query(Criteria.where("dateOfBirth").gt(start).lt(end));
+		Query query = new Query(Criteria.where("dateOfBirth").gte(start).lte(end));
 		return mongoOperations.find(query, Person.class);
 	}
 
@@ -106,6 +110,24 @@ public class PersonRepositoryImpl implements PersonRepositoryCustom {
 		{
 			return personList.get(0);
 		}
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Person> delete(List<Person> persons)
+	{
+		for (Person person: persons)
+		{
+			Query query = new Query(Criteria.where("dni").is(person.getDni()));
+			DeleteResult deleteResult = mongoOperations.remove(query, Person.class);
+			if (deleteResult.getDeletedCount() == 0)
+			{
+				persons.remove(person);
+			}
+		}
+		return persons;
+//		Query query = new Query(Criteria.where("dni").in(persons.stream().map(Person::getDni).collect(Collectors.toList())));
+//		return mongoOperations.findAllAndRemove(query, Person.class);
 	}
 
 	/**
