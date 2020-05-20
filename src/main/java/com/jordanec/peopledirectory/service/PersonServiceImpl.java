@@ -3,6 +3,7 @@ package com.jordanec.peopledirectory.service;
 import com.jordanec.peopledirectory.model.Country;
 import com.jordanec.peopledirectory.model.Person;
 import com.jordanec.peopledirectory.repository.PersonRepository;
+import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,12 @@ public class PersonServiceImpl implements PersonService {
 	public Optional<Person> findByDni(Long dni)
 	{
 		return personRepository.findByDni(dni);
+	}
+
+	@Override
+	public Optional<Document> findDocumentByDni(Long dni)
+	{
+		return personRepository.findDocumentByDni(dni);
 	}
 
 	@Override
@@ -174,11 +181,41 @@ public class PersonServiceImpl implements PersonService {
 		return personRepository.isOlderThan(dni, age);
 	}
 
+	@Override
+	public UpdateResult addHobbies(Person person)
+	{
+		return personRepository.addHobbies(person);
+	}
+
+	@Override
+	public UpdateResult pushHobbies(Person person)
+	{
+		return personRepository.pushHobbies(person);
+	}
+
+	@Override
+	public UpdateResult pullHobbies(Person person)
+	{
+		return personRepository.pullHobbies(person);
+	}
+
 	//test
 	@Override
 	public Document test()
 	{
 		return personRepository.test();
+	}
+
+	@Override
+	public UpdateResult addNewFieldsToAllHobbies(Document person)
+	{
+		return personRepository.addNewFieldsToAllHobbies(person);
+	}
+
+	@Override
+	public UpdateResult updateHobbiesGoodFrequency(Person person, Integer minFrequency)
+	{
+		return personRepository.updateHobbiesGoodFrequency(person, minFrequency);
 	}
 
 	private void assignCountryId(Person person)

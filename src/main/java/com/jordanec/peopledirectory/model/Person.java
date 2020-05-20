@@ -1,11 +1,13 @@
 package com.jordanec.peopledirectory.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.jordanec.peopledirectory.dto.CountryDTO;
+import com.jordanec.peopledirectory.dto.HobbyDTO;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -15,7 +17,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Document(collection = "persons")
 @RequiredArgsConstructor
@@ -47,6 +48,6 @@ public class Person
 	private String shirtSize;
 	private String university;
 	private CountryDTO country;
-
+	private List<HobbyDTO> hobbies;
 	private Long total;
 }

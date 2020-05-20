@@ -1,6 +1,7 @@
 package com.jordanec.peopledirectory.service;
 
 import com.jordanec.peopledirectory.model.Person;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ public interface PersonService {
 	List<Person> delete(List<Person> persons);
 	List<Person> findAll();
 	Optional<Person> findByDni(Long dni);
+	Optional<Document> findDocumentByDni(Long dni);
 	List<Person> findBornBetween(LocalDate start, LocalDate end);
 	List<Person> findByDateOfBirthBetweenOrderById(Date start, Date end);
 	List<Person> findByFirstNameLike(String q);
@@ -36,6 +38,12 @@ public interface PersonService {
 	List<Person> readAllByDateOfBirthNotNullOrderByDateOfBirthDesc();
 	List<Person> lookupCountry(Long dni);
 	Person isOlderThan(long dni, int age);
+	UpdateResult addHobbies(Person person);
+	UpdateResult pushHobbies(Person person);
+	UpdateResult pullHobbies(Person person);
 
 	Document test();
+
+	UpdateResult addNewFieldsToAllHobbies(Document person);
+	UpdateResult updateHobbiesGoodFrequency(Person person, Integer minFrequency);
 }

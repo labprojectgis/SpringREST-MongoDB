@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -69,6 +70,42 @@ public class PersonController {
         return new ResponseEntity<>(personService.delete(persons), HttpStatus.OK);
     }
 
+    // replaces hobbies (All)
+    @RequestMapping(value = "/person/addHobbies",method = RequestMethod.PUT)
+    public ResponseEntity<UpdateResult> addHobbies(@RequestBody Person person)
+    {
+        return new ResponseEntity<>(personService.addHobbies(person), HttpStatus.OK);
+    }
+
+    // appends hobbies
+    @RequestMapping(value = "/person/pushHobbies",method = RequestMethod.PUT)
+    public ResponseEntity<UpdateResult> pushHobbies(@RequestBody Person person)
+    {
+        return new ResponseEntity<>(personService.pushHobbies(person), HttpStatus.OK);
+    }
+
+    // deletes elements in hobbies list (if the person has them)
+    @RequestMapping(value = "/person/pullHobbies",method = RequestMethod.PUT)
+    public ResponseEntity<UpdateResult> pullHobbies(@RequestBody Person person)
+    {
+        return new ResponseEntity<>(personService.pullHobbies(person), HttpStatus.OK);
+    }
+
+    //add new fields to all hobbies. $[].<fieldName>
+    @RequestMapping(value = "/person/addNewFieldsToAllHobbies",method = RequestMethod.PUT)
+    public ResponseEntity<UpdateResult> addNewFieldsToAllHobbies(@RequestBody Document person)
+    {
+        return new ResponseEntity<>(personService.addNewFieldsToAllHobbies(person), HttpStatus.OK);
+    }
+
+    //Updates goodFrequency value to true if frequency is equal or higher than minFrequency
+    @RequestMapping(value = "/person/updateHobbiesGoodFrequency",method = RequestMethod.PUT)
+    public ResponseEntity<UpdateResult> updateHobbiesGoodFrequency(@RequestBody Person person,
+            @RequestParam(value = "minFrequency", required = false) Integer minFrequency)
+    {
+        return new ResponseEntity<>(personService.updateHobbiesGoodFrequency(person, minFrequency), HttpStatus.OK);
+    }
+
     /**
      * READ APIs
      */
@@ -90,11 +127,18 @@ public class PersonController {
         List<Person> persons = personService.findAll();
         return ResponseEntity.ok(persons);
     }
+
     @RequestMapping(method = RequestMethod.GET, value = "/person/findByDni/{dni}")
     public @ResponseBody ResponseEntity<Person> findByDni(@PathVariable Long dni)
     {
         Optional<Person> optionalPerson = personService.findByDni(dni);
-//        return ResponseEntity.ok(personOptional);
+        return optionalPerson.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/person/findDocumentByDni/{dni}")
+    public @ResponseBody ResponseEntity<Document> findDocumentByDni(@PathVariable Long dni)
+    {
+        Optional<Document> optionalPerson = personService.findDocumentByDni(dni);
         return optionalPerson.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 

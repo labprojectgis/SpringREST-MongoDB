@@ -1,21 +1,17 @@
 package com.jordanec.peopledirectory.repository;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.AggregationExpression;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.ComparisonOperators;
-import org.springframework.data.mongodb.core.aggregation.DateOperators;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
@@ -40,6 +36,13 @@ public class PersonRepositoryImpl implements PersonRepositoryCustom {
 	public List<Person> findBornBetween(LocalDate start, LocalDate end) {
 		Query query = new Query(Criteria.where("dateOfBirth").gte(start).lte(end));
 		return mongoOperations.find(query, Person.class);
+	}
+
+	@Override
+	public Optional<Document> findDocumentByDni(Long dni)
+	{
+		return Optional.ofNullable(
+				mongoOperations.findOne(new Query(Criteria.where("dni").is(dni)), Document.class, "persons"));
 	}
 
 	public long getCountByCountry(String country)
@@ -130,6 +133,75 @@ public class PersonRepositoryImpl implements PersonRepositoryCustom {
 //		return mongoOperations.findAllAndRemove(query, Person.class);
 	}
 
+	@Override
+	public UpdateResult addHobbies(Person person)
+	{
+		Update update = new Update();
+		update.set("hobbies", person.getHobbies());
+		return mongoOperations.updateFirst(
+			new Query(new Criteria()
+				.orOperator(
+					Criteria.where("dni").is(person.getDni()),
+					Criteria.where("id").is(person.getId()))),
+			update, Person.class);
+	}
+
+	@Override
+	public UpdateResult pushHobbies(Person person)
+	{
+		Update update = new Update();
+		update.push("hobbies").each(person.getHobbies().toArray());
+		return mongoOperations.updateFirst(
+			new Query(new Criteria()
+				.orOperator(
+					Criteria.where("dni").is(person.getDni()),
+					Criteria.where("id").is(person.getId()))),
+			update, Person.class);
+	}
+
+	@Override
+	public UpdateResult pullHobbies(Person person)
+	{
+		Update update = new Update();
+		update.pullAll("hobbies", person.getHobbies().toArray());
+		return mongoOperations.updateFirst(
+			new Query(new Criteria()
+				.orOperator(
+					Criteria.where("dni").is(person.getDni()),
+					Criteria.where("id").is(person.getId()))),
+			update, Person.class);
+	}
+
+	//db.persons.updateMany({dni: NumberLong(240703453)}, {$set: {"hobbies.$[].isSporty": true}})
+	@Override
+	public UpdateResult addNewFieldsToAllHobbies(Document person)
+	{
+		Update update = new Update();
+		LinkedHashMap<String, Object> hobbiesNewFields = person.get("hobbiesNewFields", LinkedHashMap.class);
+		hobbiesNewFields.forEach((name, value) -> update.set("hobbies.$[]." + name, value));
+		return mongoOperations.updateMulti(
+			new Query(new Criteria()
+				.orOperator(
+					Criteria.where("dni").is(person.get("dni")),
+					Criteria.where("id").is(person.get("id")))),
+			update, Person.class);
+	}
+
+	//db.persons.updateMany({dni: NumberLong(240703453)}, {$set: {"hobbies.$[hobby].goodFrequency": true}}, {arrayFilters: [{"hobby.frequency": {$gte: 2}}]})
+	@Override
+	public UpdateResult updateHobbiesGoodFrequency(Person person, Integer minFrequency)
+	{
+		//Update update = new Update().set("hobbies.$[hb].goodFrequency", true).filterArray("hb", "{\"hb.frequency\": {$gte: 2}");
+		return mongoOperations.updateFirst(
+			new Query(new Criteria()
+				.orOperator(
+					Criteria.where("dni").is(person.getDni()),
+					Criteria.where("id").is(person.getId()))),
+			new Update().set("hobbies.$[hb].goodFrequency", true).filterArray(Criteria.where("hb.frequency")
+					.gte(minFrequency == null ? 2 : minFrequency)),
+			Person.class);
+	}
+
 	/**
 	 Test
 	 @TODO: Implement some date operations
@@ -147,16 +219,5 @@ public class PersonRepositoryImpl implements PersonRepositoryCustom {
 						//					.and(DateOperators.dateFromString("06/05/2020")).minus("dateOfBirth").as("minus")
 						//					.andExpression("06/05/2020 - $dateOfBirth", "dateOfBirth").as("result")
 				), Person.class, Person.class).getRawResults();
-	}
-	/**
-	 Test
-	 @TODO: Implement some update operations
-	 */
-	@Override
-	public Person update(Person update)
-	{
-		Update update1 = new Update();
-		//		mongoOperations.update(Person.class).apply();
-		return null;
 	}
 }
