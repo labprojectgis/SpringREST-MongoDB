@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.jordanec.peopledirectory.model.Person;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
+import org.springframework.data.mongodb.core.geo.GeoJsonMultiPolygon;
 
 public interface PersonRepositoryCustom
 {
@@ -24,4 +25,6 @@ public interface PersonRepositoryCustom
 	UpdateResult addNewFieldsToAllHobbies(Document person);
 	UpdateResult updateHobbiesGoodFrequency(Person person, Integer minFrequency);
 	Document test();
+
+	List<Person> findByCurrentLocationWithin(GeoJsonMultiPolygon multiPolygon);
 }

@@ -1,6 +1,7 @@
 package com.jordanec.peopledirectory.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.jordanec.peopledirectory.model.Country;
 import com.jordanec.peopledirectory.model.Person;
 import com.jordanec.peopledirectory.repository.CountryRepository;
@@ -120,9 +121,9 @@ public class MongoDBDataInitializerConfig
 
     protected void seedCountryData() throws IOException
     {
-        Resource sourceData = new ClassPathResource("data/Country.json");
+        Resource sourceData = new ClassPathResource("data/Country_withGeometry.json");
         List<Country> countries = objectMapper.readValue(sourceData.getFile(),
-                objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, Country.class));
+                TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Country.class));
         long totalCountries = countryRepository.count();
 
         if (totalCountries == 0 && INSERT_INITIAL_DATA_COUNTRY)
@@ -180,7 +181,8 @@ public class MongoDBDataInitializerConfig
                         JsonSchemaProperty.int64("mobile").gte(0), JsonSchemaProperty.date("dateOfBirth"),
                         JsonSchemaProperty.string("color"), JsonSchemaProperty.string("frequency"), JsonSchemaProperty.string("mac"), JsonSchemaProperty.string("language"),
                         JsonSchemaProperty.string("shirtSize"), JsonSchemaProperty.string("university"),
-                        JsonSchemaProperty.object("country")).required("dni", "firstName", "email").build();
+                        JsonSchemaProperty.object("country"))
+                        .required("dni", "firstName", "email").build();
                 //            MongoCollection<Document> personsCollection =
                 mongoTemplate.createCollection(Person.class, CollectionOptions.empty().schema(personSchema));
             }

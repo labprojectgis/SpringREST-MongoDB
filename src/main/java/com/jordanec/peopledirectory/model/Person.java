@@ -1,11 +1,14 @@
 package com.jordanec.peopledirectory.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.jordanec.peopledirectory.config.GeoDeserializer;
+import com.jordanec.peopledirectory.config.GeoSerializer;
 import com.jordanec.peopledirectory.dto.CountryDTO;
 import com.jordanec.peopledirectory.dto.HobbyDTO;
 import lombok.Data;
@@ -15,13 +18,16 @@ import org.springframework.data.annotation.Transient;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "persons")
 @RequiredArgsConstructor
 @Data
-public class Person
+public class Person implements Serializable
 {
 	@Transient
 	private static final long serialVersionUID = 6513485617455789714L;
@@ -50,4 +56,8 @@ public class Person
 	private CountryDTO country;
 	private List<HobbyDTO> hobbies;
 	private Long total;
+	@JsonSerialize(using = GeoSerializer.class)
+	@JsonDeserialize(using = GeoDeserializer.class)
+	@GeoSpatialIndexed(type= GeoSpatialIndexType.GEO_2DSPHERE)
+	private GeoJsonPoint currentLocation;
 }

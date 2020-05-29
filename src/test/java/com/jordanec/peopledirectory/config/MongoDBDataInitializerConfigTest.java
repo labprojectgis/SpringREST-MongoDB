@@ -1,6 +1,7 @@
 package com.jordanec.peopledirectory.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import com.jordanec.peopledirectory.model.Country;
 import com.jordanec.peopledirectory.repository.CountryRepository;
 import com.mongodb.client.MongoDatabase;
@@ -19,7 +20,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -29,16 +32,14 @@ public class MongoDBDataInitializerConfigTest
     @InjectMocks
     @Spy
     MongoDBDataInitializerConfig mongoDBDataInitializerConfig;
-
     @Mock
     MongoTemplate mongoTemplate;
-
     @Mock
     MongoDatabase mongoDatabase;
     @Mock
     CountryRepository countryRepository;
-
-    ObjectMapper objectMapper = new ObjectMapper();
+    @Mock
+    ObjectMapper objectMapper;
 
     @Before
     public void setUp()
@@ -118,6 +119,7 @@ public class MongoDBDataInitializerConfigTest
     {
         ReflectionTestUtils.setField(mongoDBDataInitializerConfig, "INSERT_INITIAL_DATA_COUNTRY", true);
         ReflectionTestUtils.setField(mongoDBDataInitializerConfig, "objectMapper", objectMapper);
+        Mockito.doReturn(mockCountryList()).when(objectMapper).readValue(ArgumentMatchers.any(File.class), ArgumentMatchers.any(CollectionType.class));
         Mockito.doReturn(0L).when(countryRepository).count();
         Mockito.doReturn(null).when(countryRepository).insert(ArgumentMatchers.any(List.class));
         mongoDBDataInitializerConfig.seedCountryData();
@@ -129,6 +131,7 @@ public class MongoDBDataInitializerConfigTest
         ReflectionTestUtils.setField(mongoDBDataInitializerConfig, "INSERT_INITIAL_DATA_COUNTRY", false);
         ReflectionTestUtils.setField(mongoDBDataInitializerConfig, "UPDATE_INITIAL_DATA_COUNTRY", true);
         ReflectionTestUtils.setField(mongoDBDataInitializerConfig, "objectMapper", objectMapper);
+        Mockito.doReturn(mockCountryList()).when(objectMapper).readValue(ArgumentMatchers.any(File.class), ArgumentMatchers.any(CollectionType.class));
         Mockito.doReturn(100L).when(countryRepository).count();
         Mockito.doReturn(null).when(countryRepository).saveAll(ArgumentMatchers.any(List.class));
         mongoDBDataInitializerConfig.seedCountryData();
@@ -140,8 +143,18 @@ public class MongoDBDataInitializerConfigTest
         ReflectionTestUtils.setField(mongoDBDataInitializerConfig, "INSERT_INITIAL_DATA_COUNTRY", false);
         ReflectionTestUtils.setField(mongoDBDataInitializerConfig, "UPDATE_INITIAL_DATA_COUNTRY", false);
         ReflectionTestUtils.setField(mongoDBDataInitializerConfig, "objectMapper", objectMapper);
+        Mockito.doReturn(mockCountryList()).when(objectMapper).readValue(ArgumentMatchers.any(File.class), ArgumentMatchers.any(CollectionType.class));
         Mockito.doReturn(249L).when(countryRepository).count();
         mongoDBDataInitializerConfig.seedCountryData();
         //@TODO: asserts/verifies over logs
+    }
+    private List<Country> mockCountryList()
+    {
+        List<Country> countries = new ArrayList<>();
+        for (int i = 0; i < 249; i++)
+        {
+            countries.add(new Country());
+        }
+        return countries;
     }
 }

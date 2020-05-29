@@ -64,7 +64,7 @@ public class PersonControllerTest
     @Test
     public void findByDni_OK()
     {
-        Long dni = 727462311L;
+        Long dni = 234534568L;
         ResponseEntity<Person> responseEntity = testRestTemplate
                 .exchange(buildURL() + "person/findByDni/{dni}", HttpMethod.GET,
                         new HttpEntity<>(TestsUtil.createHeaders()), TestsUtil.personTypeReference(), dni);
@@ -72,6 +72,8 @@ public class PersonControllerTest
         Person responsePerson = responseEntity.getBody();
         Assert.assertNotNull(responsePerson);
         Assert.assertThat(dni, CoreMatchers.equalTo(responsePerson.getDni()));
+        Assert.assertEquals(-69.968593, responsePerson.getCurrentLocation().getX(), 0);
+        Assert.assertEquals(12.508378, responsePerson.getCurrentLocation().getY(), 0);
     }
 
     @Test

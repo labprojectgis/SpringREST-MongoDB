@@ -20,6 +20,33 @@
     }
   },
   {
+    "dni": 234534568,
+    "firstName": "Juan",
+    "lastName": "Aruba",
+    "email": "Aruba@Aruba.com",
+    "gender": "Male",
+    "ipAddress": "153.229.163.238",
+    "mobile": 754754764,
+    "dateOfBirth": "07/02/1994",
+    "color": "Orange",
+    "frequency": "Never",
+    "mac": "D2-1C-82-6B-43-15",
+    "company": "Camimbo",
+    "language": "Burmese",
+    "shirtSize": "M",
+    "university": "Ondo State University of Science and Technology",
+    "country": {
+      "name": "Aruba"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        -69.968593,
+        12.508378
+      ]
+    }
+  },
+  {
     "dni": 727462311,
     "firstName": "Karen",
     "lastName": "Henderson",
@@ -157,6 +184,13 @@
     "university": "Universidad Libre de Costa Rica",
     "country": {
       "name": "Costa Rica"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        -84.1058115,
+        9.9343926
+      ]
     }
   },
   {
@@ -217,6 +251,13 @@
     "university": "Universidade Potiguar",
     "country": {
       "name": "Brazil"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        16.18693,
+        49.85034
+      ]
     }
   },
   {
@@ -257,6 +298,13 @@
     "university": "Universidade Luterana do Brasil",
     "country": {
       "name": "Brazil"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        83.73907,
+        21.35627
+      ]
     }
   },
   {
@@ -517,6 +565,13 @@
     "university": "Universidade Federal do ABC",
     "country": {
       "name": "Brazil"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        -82.38758,
+        54.71829
+      ]
     }
   },
   {
@@ -537,6 +592,13 @@
     "university": "Sheridan College",
     "country": {
       "name": "Canada"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        138.24693,
+        -24.17313
+      ]
     }
   },
   {
@@ -637,6 +699,13 @@
     "university": "Universidade Federal do Amapá",
     "country": {
       "name": "Brazil"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        -110.38159,
+        42.38676
+      ]
     }
   },
   {
@@ -697,6 +766,13 @@
     "university": "Universidade Federal de Mato Grosso do Sul",
     "country": {
       "name": "Brazil"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        24.06845,
+        -5.49506
+      ]
     }
   },
   {
@@ -817,6 +893,13 @@
     "university": "Universidade Federal do Rio Grande do Norte",
     "country": {
       "name": "Brazil"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        18.88460,
+        2.90264
+      ]
     }
   },
   {
@@ -1597,6 +1680,13 @@
     "university": "Universidad Tecnológica del Choco \"Diego Luis Cordoba\"",
     "country": {
       "name": "Colombia"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        -122.86079,
+        62.68519
+      ]
     }
   },
   {
@@ -2577,6 +2667,13 @@
     "university": "Universidad Nacional Jorge Basadre Grohmann",
     "country": {
       "name": "Peru"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        31.43845,
+        5.92882
+      ]
     }
   },
   {
@@ -3217,6 +3314,13 @@
     "university": "Pennsylvania State University at Harrisburg - The Capital College",
     "country": {
       "name": "United States"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        117.12317,
+        -22.47382
+      ]
     }
   },
   {
@@ -3237,6 +3341,13 @@
     "university": "Universidad Simón Bolivar",
     "country": {
       "name": "Venezuela"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        1.26728,
+        32.07159
+      ]
     }
   },
   {
@@ -3357,6 +3468,13 @@
     "university": "University of Mississippi Medical Center",
     "country": {
       "name": "United States"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        -98.97776,
+        66.50067
+      ]
     }
   },
   {
@@ -4777,6 +4895,13 @@
     "university": "Universidad de Cartago Florencio del Castillo",
     "country": {
       "name": "Costa Rica"
+    },
+    "currentLocation": {
+      "type": "Point",
+      "coordinates": [
+        -69.9485776,
+        12.4988941
+      ]
     }
   },
   {
@@ -12037,26 +12162,6 @@
     "university": "Mountain View College",
     "country": {
       "name": "Philippines"
-    }
-  },
-  {
-    "dni": 549685149,
-    "firstName": "Rebecca",
-    "lastName": "Dunn",
-    "email": "rdunngq@unblog.fr",
-    "gender": "Female",
-    "ipAddress": "224.129.203.27",
-    "mobile": 97823468,
-    "dateOfBirth": "14/10/1983",
-    "color": "Teal",
-    "frequency": "Weekly",
-    "mac": "76-71-81-01-1F-32",
-    "company": "Edgeblab",
-    "language": "Aymara",
-    "shirtSize": "L",
-    "university": "Xuzhou Normal University",
-    "country": {
-      "name": "China"
     }
   },
   {

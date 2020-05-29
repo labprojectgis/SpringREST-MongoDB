@@ -1,6 +1,7 @@
 package com.jordanec.peopledirectory.service;
 
 import com.jordanec.peopledirectory.model.Country;
+import org.bson.Document;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,4 +19,8 @@ public interface CountryService
 //    void delete(String id);
     List<Country> findAll();
     Optional<Country> findByName(String name);
+
+    Document createDocument(Document country);
+
+    Optional<Country> getCountryOfCurrentLocation(Long dni);
 }

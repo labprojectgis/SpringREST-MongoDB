@@ -46,4 +46,6 @@ public interface PersonService {
 
 	UpdateResult addNewFieldsToAllHobbies(Document person);
 	UpdateResult updateHobbiesGoodFrequency(Person person, Integer minFrequency);
+
+	List<Person> findByCurrentLocationWithinCountry(String name);
 }

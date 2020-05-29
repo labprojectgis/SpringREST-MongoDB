@@ -6,7 +6,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.bson.Document;
+import org.springframework.data.geo.Polygon;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.geo.GeoJsonMultiPolygon;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -28,6 +30,7 @@ public interface PersonRepository extends MongoRepository<Person, String>, Perso
 	List<Person> findByGender(String gender);
 	List<Person> findDistinctPeopleByCountryIgnoreCase(String country);
 	Optional<Person> findByDni(Long dni);
+	List<Person> findByCurrentLocationWithin(Polygon polygon);
 	//
 	@Aggregation(pipeline = {
 			"{$lookup: {from: 'countries', localField: 'country._id', foreignField: '_id', as: 'country'}}",

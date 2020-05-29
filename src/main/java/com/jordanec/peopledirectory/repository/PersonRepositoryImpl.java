@@ -9,7 +9,9 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.Polygon;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
@@ -18,6 +20,8 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.aggregation.UnwindOperation;
+import org.springframework.data.mongodb.core.geo.GeoJsonMultiPolygon;
+import org.springframework.data.mongodb.core.geo.GeoJsonPolygon;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Criteria;
 import com.jordanec.peopledirectory.model.Person;
@@ -220,4 +224,24 @@ public class PersonRepositoryImpl implements PersonRepositoryCustom {
 						//					.andExpression("06/05/2020 - $dateOfBirth", "dateOfBirth").as("result")
 				), Person.class, Person.class).getRawResults();
 	}
+
+	@Override
+	public List<Person> findByCurrentLocationWithin(GeoJsonMultiPolygon multiPolygon)
+	{
+		Criteria[] criterias = new Criteria[multiPolygon.getCoordinates().size()];
+
+		for (int i = 0; i < criterias.length; i++)
+		{
+			GeoJsonPolygon geoJsonPolygon = multiPolygon.getCoordinates().get(i);
+			Polygon polygon = new Polygon(geoJsonPolygon.getPoints());
+			criterias[i] = Criteria.where("currentLocation").within(polygon);
+		}
+
+		return mongoOperations.aggregate(
+			Aggregation.newAggregation(
+				Aggregation.match(new Criteria().orOperator(criterias))
+			)
+			, Person.class, Person.class).getMappedResults();
+	}
+
 }

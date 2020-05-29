@@ -2,6 +2,7 @@ package com.jordanec.peopledirectory.service;
 
 import com.jordanec.peopledirectory.model.Country;
 import com.jordanec.peopledirectory.repository.CountryRepository;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,5 +51,17 @@ public class CountryServiceImpl implements CountryService
     public Optional<Country> findByName(String name)
     {
         return countryRepository.findByName(name);
+    }
+
+    @Override
+    public Document createDocument(Document country)
+    {
+        return countryRepository.createDocument(country);
+    }
+
+    @Override
+    public Optional<Country> getCountryOfCurrentLocation(Long dni)
+    {
+        return countryRepository.getCountryOfCurrentLocation(dni);
     }
 }

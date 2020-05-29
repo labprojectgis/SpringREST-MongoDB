@@ -237,6 +237,12 @@ public class PersonController {
         return new ResponseEntity<>(persons, HttpStatus.OK);
     }
 
+    @RequestMapping(value="/person/findCurrentLocationInCountry", method=RequestMethod.GET)
+    public ResponseEntity<List<Person>> findCurrentLocationInCountry(@RequestParam("name") String name) {
+        List<Person> persons = personService.findByCurrentLocationWithinCountry(name);
+        return new ResponseEntity<>(persons, HttpStatus.OK);
+    }
+
     // api/person/getCountByCountry?country=China
     @RequestMapping(value="/person/getCountByCountry", method=RequestMethod.GET)
     public ResponseEntity<Long> getCountByCountry(@RequestParam("country") String country) {

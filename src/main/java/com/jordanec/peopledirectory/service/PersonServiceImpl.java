@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -216,6 +217,29 @@ public class PersonServiceImpl implements PersonService {
 	public UpdateResult updateHobbiesGoodFrequency(Person person, Integer minFrequency)
 	{
 		return personRepository.updateHobbiesGoodFrequency(person, minFrequency);
+	}
+
+	@Override
+	public List<Person> findByCurrentLocationWithinCountry(String name)
+	{
+		Optional<Country>  optionalCountry = countryService.findByName(name);
+		if (!optionalCountry.isPresent())
+		{
+			return new ArrayList<>();
+		}
+		Country country = optionalCountry.get();
+		if (country.getGeometry() != null)
+		{
+			return personRepository.findByCurrentLocationWithin(country.getGeometry());
+		}
+		else if (country.getGeometryMulti() != null)
+		{
+			return personRepository.findByCurrentLocationWithin(country.getGeometryMulti());
+		}
+		else
+		{
+			return new ArrayList<>();
+		}
 	}
 
 	private void assignCountryId(Person person)
