@@ -1,10 +1,10 @@
 spring:
   data:
     mongodb:
-      authentication-database: admin
+      #authentication-database: admin
       database: people1
-      username: root
-      password: root
+      #username: root
+      #password: root
       auto-index-creation: false
 logging:
   level:

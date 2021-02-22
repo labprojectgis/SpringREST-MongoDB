@@ -121,7 +121,7 @@ public class MongoDBDataInitializerConfig
 
     protected void seedCountryData() throws IOException
     {
-        Resource sourceData = new ClassPathResource("data/Country_withGeometry.json");
+        Resource sourceData = new ClassPathResource("data/Country_WithGeometry.json");
         List<Country> countries = objectMapper.readValue(sourceData.getFile(),
                 TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Country.class));
         long totalCountries = countryRepository.count();
